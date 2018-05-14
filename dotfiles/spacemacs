@@ -31,6 +31,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     javascript
      racket
      python
      pdf-tools
@@ -334,7 +335,7 @@ you should place your code here."
   (load "~/emacs/scribble.el")
 
   ;; Load Pyret
-  (load "~/git/pyret-lang/tools/emacs/pyret.el")
+  ;; (load "~/git/pyret-lang/tools/emacs/pyret.el")
 
   ;; Register Pollen extension as Scribble
   (setq auto-mode-alist (cons '("\\.pm" . scribble-mode) auto-mode-alist))
@@ -362,36 +363,36 @@ you should place your code here."
   ;;                            (when (eq major-mode 'latex-mode)
   ;;                              (funcall 'pdf-sync-forward-search))))
 
-  (setq frame-title-format
+  (setq mode-line-format
         (list (format "%s %%S: %%j " (system-name))
               '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
   (setq TeX-error-overview-open-after-TeX-run t)
 
-  ;; Somehow the pdf binding is lost. Recover back
-  ;; From: https://github.com/emacs-evil/evil-collection/blob/master/evil-collection-pdf.el
-  (evil-define-key 'normal pdf-view-mode-map
-    ;; motion
-    (kbd "<return>") 'image-next-line
-    "j" 'pdf-view-next-line-or-next-page
-    "k" 'pdf-view-previous-line-or-previous-page
-    ;; "J" 'pdf-view-scroll-up-or-next-page
-    ;; "K" 'pdf-view-scroll-down-or-previous-page
-    "J" 'pdf-view-next-page-command
-    "K" 'pdf-view-previous-page-command
-    (kbd "<next>") 'forward-page
-    (kbd "<prior>") 'backward-page
-    (kbd "<down>") 'pdf-view-next-line-or-next-page
-    (kbd "<up>") 'pdf-view-previous-line-or-previous-page
-    "gg" 'evil-collection-pdf-view-goto-first-page
-    "G" 'evil-collection-pdf-view-goto-page
+  ;; ;; Somehow the pdf binding is lost. Recover back
+  ;; ;; From: https://github.com/emacs-evil/evil-collection/blob/master/evil-collection-pdf.el
+  ;; (evil-define-key 'normal pdf-view-mode-map
+  ;;   ;; motion
+  ;;   (kbd "<return>") 'image-next-line
+  ;;   "j" 'pdf-view-next-line-or-next-page
+  ;;   "k" 'pdf-view-previous-line-or-previous-page
+  ;;   ;; "J" 'pdf-view-scroll-up-or-next-page
+  ;;   ;; "K" 'pdf-view-scroll-down-or-previous-page
+  ;;   "J" 'pdf-view-next-page-command
+  ;;   "K" 'pdf-view-previous-page-command
+  ;;   (kbd "<next>") 'forward-page
+  ;;   (kbd "<prior>") 'backward-page
+  ;;   (kbd "<down>") 'pdf-view-next-line-or-next-page
+  ;;   (kbd "<up>") 'pdf-view-previous-line-or-previous-page
+  ;;   "gg" 'evil-collection-pdf-view-goto-first-page
+  ;;   "G" 'evil-collection-pdf-view-goto-page
 
-    ;; zoom
-    "+" 'pdf-view-enlarge
-    "-" 'pdf-view-shrink
-    "0" 'pdf-view-scale-reset
-    "=" 'pdf-view-enlarge
-    )
+  ;;   ;; zoom
+  ;;   "+" 'pdf-view-enlarge
+  ;;   "-" 'pdf-view-shrink
+  ;;   "0" 'pdf-view-scale-reset
+  ;;   "=" 'pdf-view-enlarge
+  ;;   )
 
 )
 

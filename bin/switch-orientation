@@ -1,0 +1,55 @@
+#!/usr/bin/zsh
+# adapted from Ruben Barkow: https://gist.github.com/rubo77/daa262e0229f6e398766
+
+#### configuration
+# find your Touchscreen and Touchpad device with `xinput`
+TouchscreenDevice='Wacom Co.,Ltd. Pen and multitouch sensor Finger touch'
+TouchpadDevice='SynPS/2 Synaptics TouchPad'
+
+touchpadEnabled=$(xinput --list-props "$TouchpadDevice" | awk '/Device Enabled/{print $NF}')
+screenMatrix=$(xinput --list-props "$TouchscreenDevice" | awk '/Coordinate Transformation Matrix/{print $5$6$7$8$9$10$11$12$NF}')
+
+# Matrix for rotation
+# ⎡ 1 0 0 ⎤
+# ⎜ 0 1 0 ⎥
+# ⎣ 0 0 1 ⎦
+normal='1 0 0 0 1 0 0 0 1'
+normal_float='1.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,1.000000'
+
+#⎡ -1  0 1 ⎤
+#⎜  0 -1 1 ⎥
+#⎣  0  0 1 ⎦
+inverted='-1 0 1 0 -1 1 0 0 1'
+inverted_float='-1.000000,0.000000,1.000000,0.000000,-1.000000,1.000000,0.000000,0.000000,1.000000'
+
+# 90° to the left
+# ⎡ 0 -1 1 ⎤
+# ⎜ 1  0 0 ⎥
+# ⎣ 0  0 1 ⎦
+left='0 -1 1 1 0 0 0 0 1'
+left_float='0.000000,-1.000000,1.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000'
+
+# 90° to the right
+#⎡  0 1 0 ⎤
+#⎜ -1 0 1 ⎥
+#⎣  0 0 1 ⎦
+right='0 1 0 -1 0 1 0 0 1'
+
+if [[ -f ~/.switch-orientation ]];
+then
+  echo "Back to normal"
+  xrandr -o normal
+  xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $normal
+  xinput enable "$TouchpadDevice"
+  rm -f ~/.switch-orientation
+else
+  echo "90° to the left"
+  xrandr -o left
+  xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $left
+  xinput disable "$TouchpadDevice"
+  touch ~/.switch-orientation
+fi
+# echo "Upside down"
+# xrandr -o inverted
+# xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $inverted
+# xinput disable "$TouchpadDevice"
