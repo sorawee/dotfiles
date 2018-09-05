@@ -1,0 +1,231 @@
+[bar/i3_bar]
+dpi = 150
+width = 100%
+height = 45
+
+line-size = 2
+line-color = #f00
+
+background = #1e1e20
+foreground = #c5c8c6
+
+module-margin-right = 1
+
+font-0 = "Source Code Pro Semibold:pixelsize=10;1"
+font-1 = "Font Awesome 5 Free:style=Solid:pixelsize=10;1"
+font-2 = "Font Awesome 5 Brands:pixelsize=10;1"
+font-3 = "Noto Serif Thai:pixelsize=10;1"
+font-4 = "FuraMono Nerd Font:pixelsize=10;1"
+
+modules-left = i3 title
+modules-center =
+modules-right = date battery xkeyboard volume temperature
+
+tray-position = right
+tray-maxsize = 20
+
+cursor-click = pointer
+cursor-scroll = ns-resize
+
+; separator = " | "
+
+enable-ipc = true
+
+
+[colors]
+;background = ${xrdb:color0:#222}
+background = #222
+background-alt = #444
+;foreground = ${xrdb:color7:#222}
+foreground = #dfdfdf
+foreground-alt = #555
+primary = #ffb52a
+secondary = #4bffdc
+; #e60053
+alert = #bd2c40
+
+
+
+; [module/demo]
+; type = custom/ipc
+; hook-0 = echo foobar
+; hook-1 = date +%s
+; hook-2 = whoami
+; initial = 1
+; click-left = polybar-msg -p %pid% hook demo 1
+; click-right = polybar-msg -p %pid% hook demo 2
+; double-click-left = polybar-msg -p %pid% hook demo 3
+
+
+[module/i3]
+type = internal/i3
+format = <label-state> <label-mode>
+index-sort = true
+wrapping-scroll = false
+strip-wsnumbers = true
+
+; Only show workspaces on the same output as the bar
+;pin-workspaces = true
+
+label-mode-padding = 1.5
+label-mode-foreground = #000
+label-mode-background = ${colors.primary}
+
+; focused = Active workspace on focused monitor
+; label-focused = %index%
+label-focused-background = ${colors.background-alt}
+label-focused-underline = ${colors.primary}
+label-focused-padding = 1.5
+
+; unfocused = Inactive workspace on any monitor
+; label-unfocused = %index%
+label-unfocused-padding = 1.5
+
+; visible = Active workspace on unfocused monitor
+; label-visible = %index%
+label-visible-background = ${self.label-focused-background}
+label-visible-underline = ${self.label-focused-underline}
+label-visible-padding = ${self.label-focused-padding}
+
+; urgent = Workspace with urgency hint set
+; label-urgent = %index%
+label-urgent-background = ${colors.alert}
+label-urgent-padding = 1.5
+
+ws-icon-0 = 1
+ws-icon-1 = 2;
+ws-icon-2 = 3;
+ws-icon-3 = 4;
+ws-icon-4 = 5
+ws-icon-5 = 6
+ws-icon-6 = 7
+ws-icon-7 = 8;
+ws-icon-8 = 9;
+ws-icon-default = 
+
+; [module/i3]
+; type = internal/i3
+; format = <label-state> <label-mode>
+; index-sort = true
+; wrapping-scroll = false
+;
+; label-focused = %index%
+; label-focused-background = #696969
+; label-focused-padding = 2
+;
+; label-unfocused = %index%
+; label-unfocused-padding = 2
+;
+; label-visible = %index%
+; label-visible-padding = 2
+;
+; label-urgent = %index%
+; label-urgent-padding = 2
+
+
+
+[module/volume]
+type = internal/volume
+
+format-volume = %{u#0ff}<ramp-volume> <label-volume>%{u-}
+label-volume = %percentage%%
+label-volume-foreground = ${root.foreground}
+
+format-muted = %{u#0ff}<label-muted>%{u-}
+format-muted-foreground = ${colors.foreground-alt}
+label-muted = 婢 (muted)
+ramp-volume-0 = 奄
+ramp-volume-1 = 奔
+ramp-volume-2 = 墳
+
+
+
+; 奄 奔 墳
+
+[module/title]
+type = internal/xwindow
+label-maxlen = 64
+format-background = ${colors.background-alt}
+format-padding = 1
+
+[module/date]
+type = internal/date
+
+date = "%a %b %d,"
+time = %H:%M:%S
+
+label = %date% %time%
+format-underline = ${xrdb:color2}
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+format-underline = ${xrdb:color3}
+label-indicator-padding = 1
+label-indicator-foreground = ${xrdb:color0}
+label-indicator-background = ${xrdb:color3}
+
+[module/battery]
+type = internal/battery
+
+full-at = 100
+
+; Use the following command to list batteries and adapters:
+; $ ls -1 /sys/class/power_supply/
+battery = BAT0
+adapter = AC
+time-format = %H:%M
+format-charging = %{u#f00}<animation-charging> <label-charging>%{u-}
+format-discharging = %{u#f00}<ramp-capacity> <label-discharging>%{u-}
+format-full = %{u#f00}<label-full>%{u-}
+label-charging = %percentage%% (%time%)
+label-discharging = %percentage%% (%time%)
+label-full = %percentage%%
+
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-3 = 
+ramp-capacity-4 = 
+
+bar-capacity-width = 10
+
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-3 = 
+animation-charging-4 = 
+
+animation-charging-framerate = 750
+
+animation-discharging-0 = 
+animation-discharging-1 = 
+animation-discharging-2 = 
+animation-discharging-3 = 
+animation-discharging-4 = 
+
+animation-discharging-framerate = 500
+
+
+
+[module/temperature]
+type = internal/temperature
+thermal-zone = 0
+warn-temperature = 60
+
+format = <label>
+format-underline = ${xrdb:color6}
+format-warn = <label-warn>
+format-warn-underline = ${self.format-underline}
+
+label = %temperature%
+label-warn = %temperature%
+label-warn-foreground = ${colors.secondary}
+
+
+[settings]
+screenchange-reload = true
+
+[global/wm]
+margin-top = 0
+margin-bottom = 0

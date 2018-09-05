@@ -1,0 +1,19 @@
+#
+# Defines environment variables.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+# Ensure that a non-login, non-interactive shell has a defined environment.
+if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprofile"
+fi
+
+export PATH=~/bin:$PATH
+export PATH=~/.gem/ruby/2.5.0/bin/:$PATH
+export PATH=~/.npm-global/bin:$PATH
+
+if [[ -z $(pidof ssh-agent) && -z $(pidof gpg-agent) ]]; then
+    eval $(keychain --eval --quiet --inherit any)
+fi
