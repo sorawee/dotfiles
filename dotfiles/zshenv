@@ -11,9 +11,16 @@ if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; t
 fi
 
 export PATH=~/bin:$PATH
-export PATH=~/.gem/ruby/2.5.0/bin/:$PATH
+export PATH=~/.gem/ruby/2.5.0/bin:$PATH
 export PATH=~/.npm-global/bin:$PATH
+export PATH=/Library/TeX/texbin:$PATH
+export PATH=/Applications/CoqIDE_8.9.0.app/Contents/Resources/bin:$PATH
+export PATH=~/.vscode/extensions/correctnesslab.dafny-vscode-0.16.0/dafny/dafny:$PATH
 
-if [[ -z $(pidof ssh-agent) && -z $(pidof gpg-agent) ]]; then
-    eval $(keychain --eval --quiet --inherit any)
-fi
+# Install Ruby Gems to ~/gems
+export GEM_HOME=$HOME/gems
+export PATH=$HOME/gems/bin:$PATH
+
+# if [[ -z $(pidof ssh-agent) && -z $(pidof gpg-agent) ]]; then
+#     eval $(keychain --eval --quiet --inherit any)
+# fi

@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp -*-
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
@@ -26,7 +26,6 @@ This function should only modify configuration layer settings."
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
 
-   ;; If non-nil layers with lazy install support are lazy installed.
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
@@ -39,26 +38,31 @@ This function should only modify configuration layer settings."
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     helm
+     (helm :variables helm-enable-auto-resize t)
      auto-completion
      better-defaults
      emacs-lisp
      git
-     markdown
-     neotree
+     multiple-cursors
+     treemacs
      org
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
-     spell-checking
+     ;; spell-checking
      syntax-checking
      version-control
+     lsp
 
      ;; additional languages
+     markdown
+     sml
+     ruby
      csv
      html
      yaml
-     javascript
+     (javascript :variables
+                 js2-basic-offset 2)
      racket
      python
      c-c++
@@ -69,26 +73,33 @@ This function should only modify configuration layer settings."
      json
      react
      ocaml
-     reason
+     php
+     ess
+     graphviz
+     reasonml
      shell-scripts
-     typescript
+     (typescript :variables
+                 typescript-fmt-on-save t
+                 typescript-indent-level 2
+                 typescript-fmt-tool 'prettier)
+     coq
      (latex :variables
             TeX-view-program-selection '((output-pdf "PDF Tools"))
             TeX-source-correlate-start-server t
             TeX-source-correlate-method 'synctex
             TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
-            TeX-error-overview-open-after-TeX-run t
-            )
+            TeX-error-overview-open-after-TeX-run t)
      pdf
 
      ;; tools
+     copy-as-format
+     docker
      visual-regexp
      pass
      ibuffer
      (colors :variables colors-enable-nyan-cat-progress-bar t)
      unicode-fonts
-     xclipboard
-     )
+     xclipboard)
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -100,16 +111,15 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages
    '((alloy-mode :location (recipe :fetcher github
                                    :repo "dwwmmn/alloy-mode"
-                                   :files ("alloy-mode.el")))
-     keychain-environment
-     )
+                                   :files ("alloy-mode.el"))))
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages '(evil-escape
-                                    emmet-mode)
+                                    emmet-mode
+                                    linum)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -134,9 +144,9 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil)
    dotspacemacs-enable-emacs-pdumper nil
 
-   ;; File path pointing to emacs 27.1 executable compiled with support
-   ;; for the portable dumper (this is currently the branch pdumper).
-   ;; (default "emacs-27.0.50")
+   ;; Name of executable file pointing to emacs 27+. This executable must be
+   ;; in your PATH.
+   ;; (default "emacs")
    dotspacemacs-emacs-pdumper-executable-file "emacs"
 
    ;; Name of the Spacemacs dump file. This is the file will be created by the
@@ -171,8 +181,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
-   ;; (default nil)
-   dotspacemacs-verify-spacelpa-archives nil
+   ;; (default t)
+   dotspacemacs-verify-spacelpa-archives t
 
    ;; If non-nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
@@ -192,10 +202,8 @@ It should only modify the values of Spacemacs settings."
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
    dotspacemacs-editing-style '(hybrid :variables
-                                hybrid-mode-enable-hjkl-bindings t)
-
-   ;; If non-nil output loading progress in `*Messages*' buffer. (default nil)
-   dotspacemacs-verbose-loading nil
+                                       hybrid-style-enable-hjkl-bindings t
+                                       vim-style-retain-visual-state-on-shift	t)
 
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
@@ -211,11 +219,17 @@ It should only modify the values of Spacemacs settings."
    ;; `recents' `bookmarks' `projects' `agenda' `todos'.
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
-   dotspacemacs-startup-lists '((recents . 5)
-                                (projects . 7))
+   dotspacemacs-startup-lists '((bookmarks . 20)
+                                (recents . 2)
+                                (projects . 2))
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
+
+   ;; Default major mode for a new empty buffer. Possible values are mode
+   ;; names such as `text-mode'; and `nil' to use Fundamental mode.
+   ;; (default `text-mode')
+   dotspacemacs-new-empty-buffer-major-mode 'text-mode
 
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
@@ -231,22 +245,21 @@ It should only modify the values of Spacemacs settings."
                          spacemacs-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
-   ;; `all-the-icons', `custom', `vim-powerline' and `vanilla'. The first three
-   ;; are spaceline themes. `vanilla' is default Emacs mode-line. `custom' is a
-   ;; user defined themes, refer to the DOCUMENTATION.org for more info on how
-   ;; to create your own spaceline theme. Value can be a symbol or list with\
-   ;; additional properties.
+   ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
+   ;; first three are spaceline themes. `doom' is the doom-emacs mode-line.
+   ;; `vanilla' is default Emacs mode-line. `custom' is a user defined themes,
+   ;; refer to the DOCUMENTATION.org for more info on how to create your own
+   ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator arrow :separator-scale 1.7)
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
 
-   ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
-   ;; quickly tweak the mode-line size to make separators look not too crappy.
+   ;; Default font or prioritized list of fonts.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 24
+                               :size 13.0
                                :weight normal
                                :width normal)
 
@@ -308,10 +321,9 @@ It should only modify the values of Spacemacs settings."
 
    ;; Maximum number of rollback slots to keep in the cache. (default 5)
    dotspacemacs-max-rollback-slots 5
-
-   ;; If non-nil, the paste transient-state is enabled. While enabled, pressing
-   ;; `p' several times cycles through the elements in the `kill-ring'.
-   ;; (default nil)
+   ;; If non-nil, the paste transient-state is enabled. While enabled, after you
+   ;; paste something, pressing `C-j' and `C-k' several times cycles through the
+   ;; elements in the `kill-ring'. (default nil)
    dotspacemacs-enable-paste-transient-state nil
 
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
@@ -347,7 +359,12 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
    ;; (default nil) (Emacs 24.4+ only)
-   dotspacemacs-maximized-at-startup nil
+   dotspacemacs-maximized-at-startup t
+
+   ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
+   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
+   ;; borderless fullscreen. (default nil)
+   dotspacemacs-undecorated-at-startup nil
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
@@ -376,10 +393,14 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-smooth-scrolling t
 
    ;; Control line numbers activation.
-   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
-   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
+   ;; `prog-mode' and `text-mode' derivatives. If set to `relative', line
+   ;; numbers are relative. If set to `visual', line numbers are also relative,
+   ;; but lines are only visual lines are counted. For example, folded lines
+   ;; will not be counted and wrapped lines are counted as multiple lines.
    ;; This variable can also be set to a property list for finer control:
    ;; '(:relative nil
+   ;;   :visual nil
    ;;   :disabled-for-modes dired-mode
    ;;                       doc-view-mode
    ;;                       markdown-mode
@@ -387,6 +408,7 @@ It should only modify the values of Spacemacs settings."
    ;;                       pdf-view-mode
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
+   ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
    dotspacemacs-line-numbers nil
 
@@ -399,7 +421,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-smartparens-strict-mode nil
 
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
-   ;; over any automatically added closing parenthesis, bracket, quote, etc…
+   ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis t
 
@@ -445,7 +467,7 @@ It should only modify the values of Spacemacs settings."
    ;; %z - mnemonics of buffer, terminal, and keyboard coding systems
    ;; %Z - like %z, but including the end-of-line format
    ;; (default "%I@%S")
-   dotspacemacs-frame-title-format "%I@%S"
+   dotspacemacs-frame-title-format "%f@%S"
 
    ;; Format specification for setting the icon title format
    ;; (default nil - same as frame-title-format)
@@ -481,7 +503,6 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-
   )
 
 (defun dotspacemacs/user-load ()
@@ -491,167 +512,97 @@ This function is called only while dumping Spacemacs configuration. You can
 dump."
   )
 
-(defun dotspacemacs/user-config ()
-  "Configuration for user code:
-This function is called at the very end of Spacemacs startup, after layer
-configuration.
-Put your configuration code here, except for variables that should be set
-before packages are loaded."
 
-  (keychain-refresh-environment)
+(defun my/multiple-cursors ()
+  "Multiple cursor configurations"
 
-
-  ;; (require 'thai-word)
-
-  ;; (defun my/he-dabbrev-beg ()
-  ;;   (save-excursion
-  ;;     (thai-backward-word 1)
-  ;;     (point)))
-
-  ;; (defun my/he-dabbrev-search (pattern &optional reverse limit)
-  ;;   (let ((result ())
-  ;;         (regpat (concat (regexp-quote pattern) "\\sw+")))
-  ;;     (while (and (not result)
-  ;;                (if reverse
-  ;;                    (re-search-backward regpat limit t)
-  ;;                  (re-search-forward regpat limit t)))
-  ;;       (setq result (buffer-substring-no-properties (match-beginning 0)
-  ;;                                                   (match-end 0)))
-  ;;       (when result
-  ;;         (save-excursion
-  ;;           (let ((word-beg (match-beginning 0)))
-  ;;             (goto-char word-beg)
-  ;;             (thai-forward-word 1)
-  ;;             (setq result (buffer-substring-no-properties word-beg (point))))))
-  ;;       (if (or (and hippie-expand-dabbrev-as-symbol
-  ;;                   (> (match-beginning 0) (point-min))
-  ;;                   (memq (char-syntax (char-after (1- (match-beginning 0))))
-  ;;                         '(?_ ?w)))
-  ;;               (he-string-member result he-tried-table t))
-  ;;           (setq result nil)))     ; ignore if bad prefix or already in table
-  ;;     result))
-
-  ;; (defun my/try-expand-dabbrev (old)
-  ;;   (let ((old/he-dabbrev-search (symbol-function 'he-dabbrev-search))
-  ;;         (old/he-dabbrev-beg (symbol-function 'he-dabbrev-beg)))
-  ;;     (fset 'he-dabbrev-search (symbol-function 'my/he-dabbrev-search))
-  ;;     (fset 'he-dabbrev-beg (symbol-function 'my/he-dabbrev-beg))
-  ;;     (unwind-protect
-  ;;         (try-expand-dabbrev old)
-  ;;       (fset 'he-dabbrev-search old/he-dabbrev-search)
-  ;;       (fset 'he-dabbrev-beg old/he-dabbrev-beg))))
+  (setq-default evil-mc-undo-cursors-on-keyboard-quit t)
+  (evil-define-command evil-mc-toggle-cursor-here ()
+    "Toggle a cursor at point."
+    :repeat ignore
+    :evil-mc t
+    (evil-mc-run-cursors-before)
+    (setq evil-mc-frozen t)
+    (force-mode-line-update)
+    (unless (evil-mc-undo-cursor-at-pos (point))
+      (evil-mc-make-cursor-at-pos (point))))
 
 
-  ;; (add-to-list 'hippie-expand-try-functions-list 'my/try-expand-dabbrev)
+  (defun evil-mc-resume/pause-cursors ()
+    "Toggle pause/resume all cursors."
+    (interactive)
+    (setq evil-mc-frozen (not evil-mc-frozen))
+    (force-mode-line-update))
 
-  (add-hook 'conf-xdefaults-mode-hook 'rainbow-mode)
+  (dolist (keybinding `((,(kbd "C-M-o") . evil-mc-toggle-cursor-here)
+                        (,(kbd "C-M-p") . evil-mc-resume/pause-cursors)))
+    (define-key evil-normal-state-map (car keybinding) (cdr keybinding))))
 
-  ;; Enable hjkl and arrows to cross lines
-  (setq-default evil-cross-lines t)
+(defun my/thai-autocomplete ()
+  "Broken Thai autocomplete fix"
 
-  ;; Don't save duplicates in kill-ring
-  (setq kill-do-not-save-duplicates t)
+  (require 'thai-word)
 
-  ;; Follow symlink
-  (setq vc-follow-symlinks t)
+  (defun my/he-dabbrev-beg ()
+    (save-excursion
+      (thai-backward-word 1)
+      (point)))
 
-  ;; js indent only 2
-  (setq-default js2-basic-offset 2)
+  (defun my/he-dabbrev-search (pattern &optional reverse limit)
+    (let ((result ())
+          (regpat (concat (regexp-quote pattern) "\\sw+")))
+      (while (and (not result)
+                  (if reverse
+                      (re-search-backward regpat limit t)
+                    (re-search-forward regpat limit t)))
+        (setq result (buffer-substring-no-properties (match-beginning 0)
+                                                     (match-end 0)))
+        (when result
+          (save-excursion
+            (let ((word-beg (match-beginning 0)))
+              (goto-char word-beg)
+              (thai-forward-word 1)
+              (setq result (buffer-substring-no-properties word-beg (point))))))
+        (if (or (and hippie-expand-dabbrev-as-symbol
+                     (> (match-beginning 0) (point-min))
+                     (memq (char-syntax (char-after (1- (match-beginning 0))))
+                           '(?_ ?w)))
+                (he-string-member result he-tried-table t))
+            (setq result nil)))     ; ignore if bad prefix or already in table
+      result))
 
-  ;; Hide the minor mode icons
-  (spaceline-toggle-minor-modes-off)
+  (defun my/try-expand-dabbrev (old)
+    (let ((old/he-dabbrev-search (symbol-function 'he-dabbrev-search))
+          (old/he-dabbrev-beg (symbol-function 'he-dabbrev-beg)))
+      (fset 'he-dabbrev-search (symbol-function 'my/he-dabbrev-search))
+      (fset 'he-dabbrev-beg (symbol-function 'my/he-dabbrev-beg))
+      (unwind-protect
+          (try-expand-dabbrev old)
+        (fset 'he-dabbrev-search old/he-dabbrev-search)
+        (fset 'he-dabbrev-beg old/he-dabbrev-beg))))
 
-  ;; Load Scribble
-  (load "~/emacs/scribble.el")
+  (add-to-list 'hippie-expand-try-functions-list 'my/try-expand-dabbrev))
 
-  ;; Load Pyret
-  (load "~/git/pyret-lang/tools/emacs/pyret.el")
+(defun my/org-mode ()
+  "Settings for org-mode"
 
-  ;; Register Pollen extension as Scribble
-  (setq auto-mode-alist (cons '("\\.pm" . scribble-mode) auto-mode-alist))
 
-  ;; Make evil-mode up/down operate in screen lines instead of logical lines
-  (define-key evil-normal-state-map "j" 'evil-next-visual-line)
-  (define-key evil-normal-state-map "k" 'evil-previous-visual-line)
-  ;; Also in visual mode
-  (define-key evil-visual-state-map "j" 'evil-next-visual-line)
-  (define-key evil-visual-state-map "k" 'evil-previous-visual-line)
 
-  ;; Make evil-mode up/down operate in screen lines instead of logical lines
-  (define-key evil-normal-state-map (kbd "<down>") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "<up>") 'evil-previous-visual-line)
-  ;; Also in visual mode
-  (define-key evil-visual-state-map (kbd "<down>") 'evil-next-visual-line)
-  (define-key evil-visual-state-map (kbd "<up>") 'evil-previous-visual-line)
-
-  (define-key evil-hybrid-state-map (kbd "C-p") 'evil-paste-before)
-  (define-key evil-hybrid-state-map (kbd "C-h") 'left-char)
-  (define-key evil-hybrid-state-map (kbd "C-j") 'next-line)
-  (define-key evil-hybrid-state-map (kbd "C-k") 'previous-line)
-  (define-key evil-hybrid-state-map (kbd "C-l") 'right-char)
-  (define-key evil-hybrid-state-map (kbd "C-o") 'evil-execute-in-normal-state)
-  (define-key company-active-map (kbd "C-l") nil)
-
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-
-  (spacemacs/toggle-indent-guide-globally-on)
-
-  ;; Make PDF reader tracks the cursor
-  ;; (run-with-idle-timer 1 t (lambda ()
-  ;;                            (when (eq major-mode 'latex-mode)
-  ;;                              (funcall 'pdf-sync-forward-search))))
-
-  (defun my/file-find-hook ()
-    ;; open as root
-    (when (and (not (file-writable-p buffer-file-name))
-               (file-exists-p buffer-file-name)
-               (y-or-n-p "File not writable. Open as root?"))
-      (let ((obuf (current-buffer)))
-        (spacemacs/sudo-edit)
-        (unless (equal (current-buffer) obuf)
-          (let (kill-buffer-query-functions kill-buffer-hook)
-            (kill-buffer obuf))))))
-
-  (add-hook 'find-file-hook 'my/file-find-hook)
-
-  (setq evil-want-fine-undo t)
-
-  (setq create-lockfiles nil)
-
-  (global-company-mode t)
-
-  (smartparens-global-mode t)
-
-  (defun my/company-dabbrev-ignore-buffers (buffer)
-    "ignore the following buffers"
-    (string-match-p "\\.pdf" (buffer-name buffer)))
-  (setq company-dabbrev-ignore-buffers 'my/company-dabbrev-ignore-buffers)
-
-                                        ; this somehow is not working
-                                        ; (add-to-list 'hippie-expand-ignore-buffers 'pdf-view-mode)
-
-  (setq frame-title-format
-        (list '(buffer-file-name "%f" (dired-directory dired-directory "%b"))
-              (format " : %s" (system-name))))
-
-  ;; org mode
   (with-eval-after-load 'org
 
-
-    (setq org-agenda-files '("~/org/main.org"))
+    (setq-default org-agenda-files '("~/org/main.org"))
+    (setq-default org-format-latex-options (plist-put org-format-latex-options :scale 2.3))
+    (setq-default org-startup-with-latex-preview t)
 
     (defun update-org-latex-fragment-scale ()
       (org-toggle-latex-fragment '(16))
       (let ((text-scale-factor (expt text-scale-mode-step text-scale-mode-amount)))
-        (plist-put org-format-latex-options :scale (* 2.3 text-scale-factor)))
-      (org-toggle-latex-fragment '(16))
-      )
+        (plist-put org-format-latex-options :scale (* 1.6 text-scale-factor)))
+      (org-toggle-latex-fragment '(16)))
 
-    (add-hook 'text-scale-mode-hook 'update-org-latex-fragment-scale)
+    (add-hook 'org-mode-hook
+              (lambda () (add-hook 'text-scale-mode-hook 'update-org-latex-fragment-scale nil t)))
 
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.3))
-
-    (setq org-startup-with-latex-preview t)
 
     ;; from http://slumpy.org/blog/2017-02-01-automatic-latex-preview-in-org-mode/
     (defvar kk/org-latex-fragment-last nil
@@ -734,11 +685,265 @@ before packages are loaded."
                      (delete-overlay ov))))
                (setq kk/org-latex-fragment-last begin))))))
 
-    (add-hook 'post-command-hook 'kk/org-latex-fragment-toggle t)
-    )
+    (add-hook 'org-mode-hook
+              (lambda () (add-hook 'post-command-hook 'kk/org-latex-fragment-toggle t t)))
+    ))
+
+(defun my/hooks ()
+  "All custom hooks"
+
+  (defun my/file-find-hook ()
+    ;; open as root
+    (when (and (not (file-writable-p buffer-file-name))
+               (file-exists-p buffer-file-name)
+               (y-or-n-p "File not writable. Open as root?"))
+      (let ((obuf (current-buffer)))
+        (spacemacs/sudo-edit)
+        (unless (equal (current-buffer) obuf)
+          (let (kill-buffer-query-functions kill-buffer-hook)
+            (kill-buffer obuf))))))
 
 
-  )
+  (add-hook 'find-file-hook 'my/file-find-hook)
+  (add-hook 'conf-xdefaults-mode-hook 'rainbow-mode)
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
+
+(defun my/indent ()
+  "Set indentation level"
+
+  (setq-default web-mode-markup-indent-offset 2)
+  (setq-default c-basic-offset 4)
+  (setq-default web-mode-code-indent-offset 2)
+  (setq-default javascript-indent-level 2)
+  (setq-default js-indent-level 2)
+  (setq-default react-indent-level 2)
+  (setq-default css-indent-offset 2))
+
+
+(defun my/racket-mode ()
+  "Racket-mode customization"
+
+  (defun insert-lambda ()
+    (interactive)
+    (insert-char (make-char 'greek-iso8859-7 107) 1))
+  (global-set-key (kbd "s-\\") 'insert-lambda)
+
+  (put 'generator 'racket-indent-function 1)
+  (put 'match-define-values 'racket-indent-function 1)
+  (put 'for/stream 'racket-indent-function 'racket--indent-for)
+  (put 'for*/stream 'racket-indent-function 'racket--indent-for)
+  (put 'for/all 'racket-indent-function 'racket--indent-for)
+  (put 'for*/all 'racket-indent-function 'racket--indent-for)
+
+  ;; my stuff
+
+  (put 'for/hash! 'racket-indent-function 'racket--indent-for)
+  (put 'for/input-port 'racket-indent-function 'racket--indent-for)
+  (put 'for/filter-list 'racket-indent-function 'racket--indent-for)
+
+  (put 'let0 'racket-indent-function 1)
+  (put 'let/effect 'racket-indent-function 1)
+
+  (put 'cases 'racket-indent-function 1)
+
+  (put 'module/path 'racket-indent-function 2)
+
+  (put 'section 'racket-indent-function 1)
+
+
+  (put 'pyret-for 'racket-indent-function 2)
+
+  ;; without this, jump-to-definition in Racket will bring up "visit tags table"
+  ;; see https://github.com/syl20bnr/spacemacs/issues/9756
+  (setq-default spacemacs-default-jump-handlers
+                (remove 'evil-goto-definition spacemacs-default-jump-handlers)))
+
+(defun my/scribble ()
+  "Scribble stuff"
+
+  (load "~/emacs/scribble.el") ;; Load Scribble
+
+  ;; Register Pollen extension as Scribble
+  (setq-default auto-mode-alist (cons '("\\.pm" . scribble-mode) auto-mode-alist)))
+
+(defun my/git-gutter+ ()
+  "git-gutter+ fixes. See https://github.com/nonsequitur/git-gutter-plus/issues/42#issuecomment-464463744"
+
+  (with-eval-after-load 'git-gutter+
+    (defun git-gutter+-remote-default-directory (dir file)
+      (let* ((vec (tramp-dissect-file-name file))
+             (method (tramp-file-name-method vec))
+             (user (tramp-file-name-user vec))
+             (domain (tramp-file-name-domain vec))
+             (host (tramp-file-name-host vec))
+             (port (tramp-file-name-port vec)))
+        (tramp-make-tramp-file-name method user domain host port dir)))
+
+    (defun git-gutter+-remote-file-path (dir file)
+      (let ((file (tramp-file-name-localname (tramp-dissect-file-name file))))
+        (replace-regexp-in-string (concat "\\`" dir) "" file)))))
+
+(defun my/linux ()
+  "Linux configuration"
+
+  ;; (keychain-refresh-environment) ;; only for Linux
+  nil)
+
+(defun my/bracket ()
+  "Fix bracket keyboard shortcut"
+
+  (defmacro fix-bracket (state map)
+    `(progn
+       (evil-define-key ,state ,map (kbd "[") nil)
+       (evil-define-key ,state ,map (kbd "]") nil)
+       (evil-define-key ,state ,map (kbd "[ b") 'previous-buffer)
+       (evil-define-key ,state ,map (kbd "] b") 'next-buffer)
+       (evil-define-key ,state ,map (kbd "[ f") 'evil-unimpaired/previous-file)
+       (evil-define-key ,state ,map (kbd "] f") 'evil-unimpaired/next-file)
+       (evil-define-key ,state ,map (kbd "[ w") 'previous-multiframe-window)
+       (evil-define-key ,state ,map (kbd "] w") 'next-multiframe-window)))
+
+  (fix-bracket nil evil-motion-state-map)
+  (fix-bracket '(normal motion) message-buffer-mode-map)
+  (fix-bracket '(normal motion) help-mode-map)
+
+  (with-eval-after-load 'magit
+    (fix-bracket '(normal motion) magit-status-mode-map)
+    (fix-bracket '(normal motion) magit-diff-mode-map))
+
+  (with-eval-after-load 'racket-mode
+    (fix-bracket '(normal motion) racket-repl-mode-map))
+
+  (with-eval-after-load 'pdf-tools
+    (fix-bracket (normal motion) pdf-view-mode-map)))
+
+(defun my/pdf ()
+  "PDF mode"
+
+  ;; Make PDF reader tracks the cursor
+  ;; (run-with-idle-timer 1 t (lambda ()
+  ;;                            (when (eq major-mode 'latex-mode)
+  ;;                              (funcall 'pdf-sync-forward-search))))
+  ;; (defun my/company-dabbrev-ignore-buffers (buffer)
+  ;;   "ignore the following buffers"
+  ;;   (string-match-p "\\.pdf" (buffer-name buffer)))
+  ;; (setq company-dabbrev-ignore-buffers 'my/company-dabbrev-ignore-buffers)
+                                        ; this somehow is not working
+                                        ; (add-to-list 'hippie-expand-ignore-buffers 'pdf-view-mode)
+
+  nil)
+
+(defun my/general ()
+  "General stuff"
+
+  (defun display-ansi-colors ()
+    (interactive)
+    (ansi-color-apply-on-region (point-min) (point-max)))
+
+  ;; touch (s-t)
+
+  (defun touch ()
+    "updates mtime on the file for the current buffer"
+    (interactive)
+    (shell-command (concat "touch " (shell-quote-argument (buffer-file-name))))
+    (clear-visited-file-modtime))
+  (global-set-key (kbd "s-t") 'touch)
+
+
+  ;; backward-delete-word (M-DEL)
+
+  (defun delete-word (arg)
+    "Delete characters forward until encountering the end of a word.
+With argument, do this that many times."
+    (interactive "p")
+    (if (use-region-p)
+        (delete-region (region-beginning) (region-end))
+      (delete-region (point) (progn (forward-word arg) (point)))))
+  (defun backward-delete-word (arg)
+    "Delete characters backward until encountering the end of a word.
+With argument, do this that many times."
+    (interactive "p")
+    (delete-word (- arg)))
+  (global-set-key (kbd "M-<DEL>") 'backward-delete-word))
+
+(defun my/keybinding ()
+  "Keybinding"
+
+  ;; Make evil-mode up/down operate in screen lines instead of logical lines
+  (dolist (state `(,evil-normal-state-map ,evil-visual-state-map))
+    (dolist (keybinding `((,(kbd "j") . evil-next-visual-line)
+                          (,(kbd "k") . evil-previous-visual-line)
+                          (,(kbd "<down>") . evil-next-visual-line)
+                          (,(kbd "<up>") . evil-previous-visual-line)))
+      (define-key state (car keybinding) (cdr keybinding))))
+
+  (define-key evil-hybrid-state-map (kbd "C-p") 'evil-paste-before)
+  (define-key evil-hybrid-state-map (kbd "C-h") 'left-char)
+  (define-key evil-hybrid-state-map (kbd "C-j") 'next-line)
+  (define-key evil-hybrid-state-map (kbd "C-k") 'previous-line)
+  (define-key evil-hybrid-state-map (kbd "C-l") 'right-char)
+  (define-key evil-hybrid-state-map (kbd "C-o") 'evil-execute-in-normal-state)
+
+  (define-key evil-normal-state-map (kbd "/") 'helm-swoop)
+
+  (define-key company-active-map (kbd "C-l") nil)
+
+  (with-eval-after-load 'helm
+    (define-key helm-map (kbd "C-d") 'helm-next-page)
+    (define-key helm-map (kbd "C-u") 'helm-previous-page))
+
+  (spacemacs/set-leader-keys
+    "<SPC>" 'avy-goto-word-or-subword-1
+    ":" 'helm-M-x
+    "q q" 'spacemacs/frame-killer
+    "q Q" 'spacemacs/prompt-kill-emacs
+    "q K" 'spacemacs/kill-emacs))
+
+
+(defun dotspacemacs/user-config ()
+  "Configuration for user code:
+This function is called at the very end of Spacemacs startup, after layer
+configuration.
+Put your configuration code here, except for variables that should be set
+before packages are loaded."
+
+
+  (setq-default
+   kill-ring-max 500                   ;; we have a lot of memory. Let's use it!
+   evil-kill-on-visual-paste nil       ;; make it so that pasting in visual mode doesn't copy
+   evil-cross-lines t                  ;; enable hjkl and arrows to cross lines
+   kill-do-not-save-duplicates t       ;; don't save duplicates in kill-ring
+   vc-follow-symlinks t                ;; follow symlink
+   undo-tree-enable-undo-in-region nil ;; undo-tree is buggy when this option is enabled
+   evil-want-fine-undo t               ;; still not used to use normal mode as a main mode, so need fine undo
+   create-lockfiles nil                ;; don't create annoying lockfiles
+   vc-handled-backends nil             ;; speedup Tramp
+   projectile-mode-line "Projectile"   ;; speedup Tramp by not showing projectile-mode-line, thus reducing the number of queries Tramp needs to make
+   ;; tramp-verbose 6                  ;; for debugging Tramp
+   helm-ag-use-agignore t)
+
+  (editorconfig-mode 0)
+
+  (ido-mode -1)
+  (global-company-mode t)
+  (smartparens-global-mode t)
+  (spaceline-toggle-minor-modes-off) ;; Hide the minor mode icons
+  (spacemacs/toggle-indent-guide-globally-on)
+
+  (load "~/git/pyret-lang/tools/emacs/pyret.el") ;; Load Pyret
+
+  ;; (my/linux)
+  ;; (my/thai-autocomplete) ;; broken
+  (my/keybinding)
+  (my/general)
+  (my/bracket)
+  (my/multiple-cursors)
+  (my/hooks)
+  (my/org-mode)
+  (my/racket-mode)
+  (my/scribble)
+  (my/git-gutter+)
+  (my/indent))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -755,7 +960,7 @@ This function is called at the very end of Spacemacs initialization."
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (keychain-environment yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights visual-regexp-steroids vi-tilde-fringe uuidgen utop use-package unicode-fonts unfill tuareg toc-org tide tagedit symon string-inflection spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode rjsx-mode restart-emacs reason-mode rainbow-mode rainbow-identifiers rainbow-delimiters racket-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin pippel pipenv pip-requirements persp-mode pdf-tools pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file ocp-indent ob-ipython neotree nameless mwim mvn multi-term move-text mmm-mode meghanada maven-test-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode link-hint json-navigator json-mode js2-refactor js-doc intero insert-shebang indent-guide importmagic impatient-mode idris-mode ibuffer-projectile hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-pass helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets groovy-mode groovy-imports gradle-mode google-translate google-c-style golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-rtags flycheck-pos-tip flycheck-ocaml flycheck-haskell flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime emmet-mode elisp-slime-nav ein editorconfig dumb-jump dotenv-mode disaster diminish diff-hl define-word dante cython-mode csv-mode counsel-projectile company-web company-tern company-statistics company-shell company-rtags company-ghci company-ghc company-emacs-eclim company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode color-identifiers-mode cmm-mode clean-aindent-mode clang-format centered-cursor-mode browse-at-remote auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile auctex-latexmk alloy-mode aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell))))
+    (copy-as-format dap-mode bui tree-mode phpunit phpcbf php-extras php-auto-yasnippets helm-gtags ggtags drupal-mode counsel-gtags counsel swiper ivy company-php ac-php-core xcscope php-mode dockerfile-mode docker docker-tramp flyspell-correct reason-mode auth-source-pass wgrep smex ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-pass ivy-hydra flyspell-correct-ivy counsel-css yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode winum which-key web-mode web-beautify volatile-highlights visual-regexp-steroids vi-tilde-fringe uuidgen utop use-package unicode-fonts unfill tuareg treemacs-projectile treemacs-evil toc-org tide tagedit symon symbol-overlay string-inflection spaceline-all-the-icons smeargle slim-mode shell-pop seeing-is-believing scss-mode sass-mode rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocopfmt rubocop rspec-mode robe rjsx-mode restart-emacs rbenv rake rainbow-mode rainbow-identifiers rainbow-delimiters racket-mode pytest pyenv-mode py-isort pug-mode proof-general prettier-js popwin pippel pipenv pip-requirements persp-mode pdf-tools password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-cliplink org-bullets org-brain open-junk-file ocp-indent ob-sml ob-ipython nodejs-repl nameless mwim mvn multi-term move-text mmm-mode minitest meghanada maven-test-mode markdown-toc magit-svn magit-gitflow macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-java lsp-haskell lorem-ipsum livid-mode live-py-mode link-hint json-navigator json-mode js2-refactor js-doc intero insert-shebang indent-guide importmagic impatient-mode idris-mode ibuffer-projectile hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-pass helm-org-rifle helm-mode-manager helm-make helm-lsp helm-hoogle helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets groovy-mode groovy-imports graphviz-dot-mode gradle-mode google-translate google-c-style golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-rtags flycheck-pos-tip flycheck-package flycheck-ocaml flycheck-haskell flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu ess-R-data-view eshell-z eshell-prompt-extras esh-help ensime elisp-slime-nav ein editorconfig dune dumb-jump dotenv-mode doom-modeline disaster diminish diff-hl devdocs define-word dante cython-mode csv-mode cquery cpp-auto-include counsel-projectile company-web company-tern company-statistics company-shell company-rtags company-reftex company-lsp company-ghci company-ghc company-emacs-eclim company-coq company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode color-identifiers-mode cmm-mode clean-aindent-mode clang-format chruby centered-cursor-mode ccls bundler browse-at-remote blacken auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile auctex-latexmk alloy-mode aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
